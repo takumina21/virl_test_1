@@ -1,0 +1,154 @@
+show run
+Thu Aug  2 04:50:56.264 UTC
+Building configuration...
+!! IOS XR Configuration 6.1.3
+!! Last configuration change at Thu Aug  2 03:45:12 2018 by CVAC
+!
+!  IOS-XR Config generated on 2018-08-02 03:40
+! by autonetkit_0.23.5
+hostname iosxrv-1
+service timestamps log datetime msec
+service timestamps debug datetime msec
+telnet vrf default ipv4 server max-servers 10
+telnet vrf Mgmt-intf ipv4 server max-servers 10
+domain name virl.info
+domain lookup disable
+vrf Mgmt-intf
+ address-family ipv4 unicast
+ !
+ address-family ipv6 unicast
+ !
+!
+line template vty
+ timestamp
+ exec-timeout 720 0
+!
+line console
+ exec-timeout 0 0
+!
+line default
+ exec-timeout 720 0
+!
+vty-pool default 0 50
+control-plane
+ management-plane
+  inband
+   interface all
+    allow all
+   !
+  !
+ !
+!
+interface Loopback0
+ description Loopback
+ ipv4 address 192.168.0.1 255.255.255.255
+!
+interface MgmtEth0/0/CPU0/0
+ description OOB Management
+ ! Configured on launch
+ vrf Mgmt-intf
+ ipv4 address 172.16.1.201 255.255.255.0
+!
+interface GigabitEthernet0/0/0/0
+ description to iosxrv-2
+ ipv4 address 10.0.0.5 255.255.255.252
+!
+interface GigabitEthernet0/0/0/1
+ description to iosxrv-2
+ ipv4 address 10.0.0.9 255.255.255.252
+!
+interface GigabitEthernet0/0/0/2
+ description to iosxrv-2
+ ipv4 address 10.0.0.13 255.255.255.252
+!
+interface GigabitEthernet0/0/0/3
+ description to iosxrv-2
+ ipv4 address 10.0.0.17 255.255.255.252
+!
+route-policy bgp_in
+  pass
+end-policy
+!
+route-policy bgp_out
+  pass
+end-policy
+!
+router ospf 1
+ log adjacency changes
+ area 0
+  mpls traffic-eng
+  interface Loopback0
+   passive enable
+  !
+  interface GigabitEthernet0/0/0/0
+   cost 1
+  !
+  interface GigabitEthernet0/0/0/1
+   cost 1
+  !
+  interface GigabitEthernet0/0/0/2
+   cost 1
+  !
+  interface GigabitEthernet0/0/0/3
+   cost 1
+  !
+ !
+ mpls traffic-eng router-id Loopback0
+!
+router bgp 1
+ bgp router-id 192.168.0.1
+ address-family ipv4 unicast
+  network 192.168.0.1/32
+ !
+ ! iBGP
+ ! iBGP peers
+ neighbor 192.168.0.2
+  remote-as 1
+  description iBGP peer iosxrv-2
+  update-source Loopback0
+  address-family ipv4 unicast
+  !
+ !
+!
+mpls oam
+!
+rsvp
+ interface GigabitEthernet0/0/0/0
+  bandwidth percentage 100
+ !
+ interface GigabitEthernet0/0/0/1
+  bandwidth percentage 100
+ !
+ interface GigabitEthernet0/0/0/2
+  bandwidth percentage 100
+ !
+ interface GigabitEthernet0/0/0/3
+  bandwidth percentage 100
+ !
+!
+mpls traffic-eng
+ interface GigabitEthernet0/0/0/0
+ !
+ interface GigabitEthernet0/0/0/1
+ !
+ interface GigabitEthernet0/0/0/2
+ !
+ interface GigabitEthernet0/0/0/3
+ !
+!
+mpls ldp
+ router-id 192.168.0.1
+ interface GigabitEthernet0/0/0/0
+ !
+ interface GigabitEthernet0/0/0/1
+ !
+ interface GigabitEthernet0/0/0/2
+ !
+ interface GigabitEthernet0/0/0/3
+ !
+!
+ssh server v2
+ssh server vrf Mgmt-intf
+end
+
+RP/0/0/CPU0:iosxrv-1#

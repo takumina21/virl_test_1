@@ -1,0 +1,65 @@
+---
+- name: show command execute
+  telnet:
+    user: cisco
+    password: cisco
+    login_prompt: "Username: "
+    prompts:
+      - "[>|#]"
+    command:
+      - terminal length 0
+      - show run
+      - sh int desc
+      - sh version
+  changed_when: False
+  register: command_result
+
+- name: debug
+  debug:
+    var: command_result.output
+
+#- name: send configuration command
+#  telnet:
+#    user: kddi
+#    password: kddi
+#    login_prompt: "Username: "
+#    prompts:
+#      - "[>|#]"
+#    command:
+#      - terminal length 0
+#      - conf t
+#      - clear
+#      - show
+#      - commit
+#      - exit
+#  changed_when: False
+#  register: configuration_result
+#
+#- name: debug_cfg
+#  debug:
+#    var: configuration_result.output
+
+- name: cfg export
+  local_action:
+    module: copy
+    mode: 0644
+    dest: "./output/{{ inventory_hostname }}_cfg.log"
+    content: "{{ command_result.output[1] }}"
+  changed_when: False
+
+- name: dest export
+  local_action:
+    module: copy
+    mode: 0644
+    dest: "./output/{{ inventory_hostname }}_destination.log"
+    content: "{{ command_result.output[2] }}"
+  changed_when: False
+
+- name: version export
+  local_action:
+    module: copy
+    mode: 0644
+    dest: "./output/{{ inventory_hostname }}_version.log"
+    content: "{{ command_result.output[3] }}"
+  changed_when: False
+...
